@@ -1,8 +1,8 @@
-# convert2pdf
+# pdfsmith
 
 ## Descrição
 
-O `convert2pdf` é uma ferramenta de linha de comando (CLI) rápida e eficiente para converter vários formatos de arquivo em PDF. Ele suporta uma ampla gama de formatos, incluindo arquivos de texto, Markdown, documentos do Office, e muito mais.
+O `pdfsmith` é uma ferramenta de linha de comando (CLI) rápida e eficiente para converter vários formatos de arquivo em PDF. Ele suporta uma ampla gama de formatos, incluindo arquivos de texto, Markdown, documentos do Office, e muito mais.
 
 ## Requisitos
 
@@ -48,13 +48,13 @@ pip install .
 
 ```bash
 # Converter um único arquivo
-convert2pdf docs/apresentacao.pptx --outdir ./pdfs
+pdfsmith docs/apresentacao.pptx --outdir ./pdfs
 
 # Converter um lote com 8 processos e otimização leve
-convert2pdf documentos/**/* --jobs 8 --optimize screen
+pdfsmith documentos/**/* --jobs 8 --optimize screen
 
 # Apenas simular conversões
-convert2pdf src/**/*.docx --dry-run -v
+pdfsmith src/**/*.docx --dry-run -v
 ```
 
 ### Opções disponíveis

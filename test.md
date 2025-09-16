@@ -1,6 +1,6 @@
 # Teste de Conversão para PDF
 
-Este é um arquivo de exemplo para testar a conversão de Markdown para PDF usando a ferramenta `convert2pdf`.
+Este é um arquivo de exemplo para testar a conversão de Markdown para PDF usando a ferramenta `pdfsmith`.
 
 ## Seções
 
