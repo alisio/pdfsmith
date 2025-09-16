@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "convert2pdf"
+version = "0.1.0"
+description = "CLI rápida para converter vários formatos em PDF"
+requires-python = ">=3.10"
+dependencies = [
+  "typer>=0.17",
+  "rich>=13",
+  "markdown-it-py>=4.0"
+]
+
+[project.scripts]
+convert2pdf = "convert2pdf.cli:app"
