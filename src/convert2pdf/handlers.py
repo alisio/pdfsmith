@@ -34,10 +34,35 @@ SOFFICE = detect(["soffice", "libreoffice"])
 GS = detect(["gs", "gswin64c"])
 
 def md_to_pdf(src: Path, dst: Path, timeout: int):
-    html = MarkdownIt().render(Path(src).read_text(encoding="utf-8"))
+    text = Path(src).read_text(encoding="utf-8")
+    
+    # Se for Markdown, converter para HTML; se for TXT puro, apenas escapar HTML
+    if src.suffix.lower() in {".md", ".markdown"}:
+        content_html = MarkdownIt().render(text)
+    else:
+        # Para TXT puro, escapar HTML e preservar quebras de linha
+        import html
+        content_html = f"<pre>{html.escape(text)}</pre>"
+    
+    # Criar HTML com charset UTF-8 explícito
+    html_document = f"""<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 20px; }}
+        pre {{ white-space: pre-wrap; word-wrap: break-word; font-family: monospace; }}
+    </style>
+</head>
+<body>
+{content_html}
+</body>
+</html>"""
+    
     with TemporaryDirectory() as tmp:
         in_html = Path(tmp)/"in.html"
-        in_html.write_text(html, encoding="utf-8")
+        in_html.write_text(html_document, encoding="utf-8")
         if WKHTML:
             run([WKHTML, "--quiet", str(in_html), str(dst)], timeout=timeout)
         elif CHROME:
