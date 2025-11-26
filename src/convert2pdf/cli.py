@@ -30,7 +30,7 @@ def work_with_args(item_and_args):
 @app.command()
 def main(
     paths: list[str] = typer.Argument(..., help="Arquivos, pastas ou globs"),
-    outdir: Path = typer.Option(Path("./out"), help="Diretório de saída"),
+    outdir: Path | None = typer.Option(None, help="Diretório de saída (se não informado, usa pasta do arquivo de origem)"),
     jobs: int = typer.Option(0, help="Nº de processos (0 = núcleos)"),
     timeout: int = typer.Option(60, help="Timeout por arquivo (s)"),
     optimize: str | None = typer.Option(None, help="Perfil Ghostscript"),
@@ -39,7 +39,6 @@ def main(
     dry_run: bool = typer.Option(False, help="Apenas lista conversões"),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
 ):
-    outdir.mkdir(parents=True, exist_ok=True)
     files = discover_inputs(paths)
     if not files:
         typer.secho("Nenhum arquivo encontrado.", fg=typer.colors.RED)
@@ -47,11 +46,23 @@ def main(
 
     max_workers = os.cpu_count() if jobs in (0, None) else jobs
     tasks = []
+    skipped = []
+    # Se outdir foi fornecido explicitamente, garanta que exista
+    if outdir is not None:
+        outdir.mkdir(parents=True, exist_ok=True)
     for src in files:
-        dst = outdir / (Path(src).stem + ".pdf")
+        srcp = Path(src)
+
+        if outdir is not None:
+            dst = outdir / (srcp.stem + ".pdf")
+        else:
+            dst = srcp.with_suffix(".pdf")
+
+        # Garantir que o diretório de destino exista somente quando necessário
         if dst.exists() and not overwrite:
+            skipped.append((src, str(dst)))
             continue
-        tasks.append((src, dst))
+        tasks.append((src, str(dst)))
 
     if dry_run:
         for src, dst in tasks:
@@ -67,9 +78,14 @@ def main(
                 progress.update(t, advance=1)
 
     # Relatório simples
-    success = [x for x in tasks if Path(outdir / (Path(x[0]).stem + ".pdf")).exists()]
-    failed = [x for x in tasks if not Path(outdir / (Path(x[0]).stem + ".pdf")).exists()]
+    # Verifica existência final dos arquivos de saída conforme caminhos alvo calculados
+    success = [x for x in tasks if Path(x[1]).exists()]
+    failed = [x for x in tasks if not Path(x[1]).exists()]
     console.print(f"Sucesso: {len(success)} | Falhas: {len(failed)}")
+    if skipped:
+        console.print(f"Ignorados ({len(skipped)}) por já existirem; use --overwrite para forçar:")
+        for s, d in skipped:
+            console.print(f"  - {s} -> {d}")
 
 if __name__ == "__main__":
     app()
