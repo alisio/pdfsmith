@@ -61,6 +61,9 @@ def main(
         # Garantir que o diretório de destino exista somente quando necessário
         if dst.exists() and not overwrite:
             skipped.append((src, str(dst)))
+            # Aviso imediato ao usuário com boas práticas de UX
+            typer.secho(f"Ignorado: '{srcp.name}' - já existe em '{dst.parent}'", fg=typer.colors.YELLOW)
+            typer.secho("Dica: use --overwrite para substituir ou --outdir para escolher outro diretório.", fg=typer.colors.CYAN)
             continue
         tasks.append((src, str(dst)))
 
