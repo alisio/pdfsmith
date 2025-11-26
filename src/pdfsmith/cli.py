@@ -38,6 +38,7 @@ def main(
     overwrite: bool = typer.Option(False, help="Sobrescreve PDFs existentes"),
     dry_run: bool = typer.Option(False, help="Apenas lista conversões"),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
+    quiet: bool = typer.Option(False, "--quiet", "-q", help="Suprime avisos por arquivo"),
 ):
     files = discover_inputs(paths)
     if not files:
@@ -61,9 +62,10 @@ def main(
         # Garantir que o diretório de destino exista somente quando necessário
         if dst.exists() and not overwrite:
             skipped.append((src, str(dst)))
-            # Aviso imediato ao usuário com boas práticas de UX
-            typer.secho(f"Ignorado: '{srcp.name}' - já existe em '{dst.parent}'", fg=typer.colors.YELLOW)
-            typer.secho("Dica: use --overwrite para substituir ou --outdir para escolher outro diretório.", fg=typer.colors.CYAN)
+            # Aviso imediato ao usuário com boas práticas de UX, salvo quando --quiet
+            if not quiet:
+                typer.secho(f"Ignorado: '{srcp.name}' - já existe em '{dst.parent}'", fg=typer.colors.YELLOW)
+                typer.secho("Dica: use --overwrite para substituir ou --outdir para escolher outro diretório.", fg=typer.colors.CYAN)
             continue
         tasks.append((src, str(dst)))
 
