@@ -14,4 +14,4 @@ dependencies = [
 ]
 
 [project.scripts]
-pdfsmith = "convert2pdf.cli:app"
+pdfsmith = "pdfsmith.cli:app"
